@@ -1,0 +1,351 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-12-19"
+---
+
+
+```{r}
+# All library
+install.packages("dplyr")
+
+library(dplyr)
+library(stringr)
+```
+
+
+```{r}
+# Check the SOP file
+sop=read.table("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/IMPC_SOP.csv",sep =",",header=T) 
+sop
+
+sop_defined_fields <- sop[,1]
+sop_defined_fields
+
+# Get the file path
+folder_path <- "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/2"
+
+# List all the files in the folder
+files <- list.files(path=folder_path, pattern="*.csv", full.names=TRUE)
+head(files)
+```
+
+```{r}
+# Create a empty list to store
+combined_data <- list()
+
+# Loop for each file
+for (file in files){
+  # Read the data
+  data <- read.csv(file, header = FALSE, col.names = c("field","value"))
+  
+  # Standardize the field names: convert to lowercase and remove extra spaces
+  data$field <- tolower(trimws(data$field))
+  
+  # Transpose the "value" column so that fields become column names
+  reshaped_data <- t(data$value) %>%
+    as.data.frame() %>%
+    setNames(data$field)
+  
+  # Get the file name as analysis_id
+  analysis_id <- str_remove(basename(file),"\\.csv$")
+  
+  # Add the analysis_id into data frame
+  reshaped_data$analysis_id <- analysis_id
+  
+  # Check the missing value
+  # Add as NA
+  missing_fields <- setdiff(sop_defined_fields,names(reshaped_data))
+  reshaped_data[missing_fields] <- NA
+  
+  # sort 
+  final_data <- reshaped_data %>%
+    select(all_of(sop_defined_fields))
+  
+  combined_data[[length(combined_data) + 1]] <- final_data
+  
+}
+
+final_combined_data <- bind_rows(combined_data)
+
+print(final_combined_data)
+
+```
+
+```{r}
+write.csv(final_combined_data, file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/final_combined_data.csv", row.names = FALSE)
+```
+
+
+```{r}
+# Check valid analysis_id: Unique 15 character string containing alphanumerical values for each analysis
+
+# Check if analysis_id meets the 15-character alphanumeric format
+valid_analysis_id <- final_combined_data %>%
+  mutate(
+    is_valid_analysis_id = str_detect(analysis_id, "^[a-zA-Z0-9]{15}$")
+  )
+
+# View records that do not meet the requirements
+invalid_id <- valid_analysis_id %>%
+  filter(!is_valid_analysis_id)
+
+# Check the number of rows in invalid_id
+n_invalid <- nrow(invalid_id)
+cat("Number of invalid analysis_id: ", n_invalid, "\n")
+
+# The number of invalid analysis_id is 0.
+```
+
+
+```{r}
+# Check valid gene_accession_id: Unique alphanumeric character string that is used to unambiguously identify a particular record in the Mouse Genome Informatics database
+# minValue=9 maxValue=11
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    is_valid_format = str_detect(gene_accession_id, "^[a-zA-Z0-9:]+$"),
+    is_valid_length = nchar(gene_accession_id) >=9 & nchar(gene_accession_id) <= 11
+  )
+
+# Identify invalid gene_accession_id
+invalid_gene_accession_id <- final_combined_data %>%
+  filter(!is_valid_format | !is_valid_length)
+
+# Check the number of rows in invalid_gene_accession_id
+n_invalid <- nrow(invalid_gene_accession_id)
+cat("Number of invalid gene_accession_id: ", n_invalid, "\n")
+
+# Th number of invalid gene_accession_id is 0
+
+```
+
+```{r}
+# Check valid gene_symbol
+# minValue=1 maxValue=13
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    is_valid_length = nchar(gene_symbol) >=1 & nchar(gene_symbol) <=13,
+    is_not_missing = !is.na(gene_symbol) & gene_symbol!=""
+  )
+
+# Identify invalid gene_symbol
+invalid_gene_symbol <- final_combined_data %>%
+  filter(!is_valid_length | !is_not_missing)
+
+# Check the number of rows in invalid_gene_symbol
+n_invalid <- nrow(invalid_gene_symbol)
+cat("Number of invalid gene_symbol: ", n_invalid, "\n")
+
+# The number of invalid gene_symbol is 0
+```
+
+
+```{r}
+# Check valid mouse_strains
+# Define the valid mouse strains
+# minValue=3 maxValue=5
+valid_mouse_strains <- c("C57BL","B6J","C3H","129SV")
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    is_valid_mouse_strain = mouse_strain %in% valid_mouse_strains,
+    is_valid_length = nchar(mouse_strain) >=3 & nchar(mouse_strain) <=5,
+    is_not_missing = !is.na(mouse_strain) & mouse_strain !=""
+  )
+
+# Identify invalid mouse_strain 
+invalid_mouse_strain <- final_combined_data %>%
+  filter(!is_valid_mouse_strain | !is_valid_length | !is_not_missing)
+
+# Check the number of rows in invalid_gene_symbol
+n_invalid <- nrow(invalid_mouse_strain)
+cat("Number of invalid mouse_strain: ", n_invalid, "\n")
+
+# The number of invalid mouse_strain is 1578
+```
+
+
+
+```{r}
+# Replace the invalid mouse_strain with "invalid"
+final_combined_data <- final_combined_data %>%
+  mutate(
+    mouse_strain = ifelse(!is_valid_mouse_strain | !is_valid_length | !is_not_missing, "invalid", mouse_strain)
+  )
+
+```
+
+
+```{r}
+# Check valid mouse_life_stage
+# minValue=4 maxValue=17
+
+# Define the valid mouse life stages
+valid_mouse_life_stages <- c("E12.5", "E15.5", "E18.5", "E9.5", 
+                             "Early adult", "Late adult", "Middle aged adult")
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    is_valid_mouse_life_stage = mouse_life_stage %in% valid_mouse_life_stages,
+    is_valid_length = nchar(mouse_life_stage) >= 4 & nchar(mouse_life_stage) <= 17,
+    is_not_missing = !is.na(mouse_life_stage) & mouse_life_stage != ""
+  )
+
+# Identify invalid mouse_life_stage 
+invalid_mouse_life_stage <- final_combined_data %>%
+  filter(!is_valid_mouse_life_stage | !is_valid_length | !is_not_missing)
+
+# Check the number of rows in invalid_mouse_life_stage
+n_invalid <- nrow(invalid_mouse_life_stage)
+cat("Number of invalid mouse_life_stage: ", n_invalid, "\n")
+
+# # The number of invalid mouse_life_stage is 0
+```
+
+```{r}
+# Check valid parameter_id
+# minValue=15 maxValue=18
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    # Allow parameter_id with letters, numbers, dashes, and underscores
+    is_valid_parameter_id = str_detect(parameter_id, "^[A-Za-z0-9_-]+$"),
+    is_valid_length = nchar(parameter_id) >= 15 & nchar(parameter_id) <= 18,
+    is_not_missing = !is.na(parameter_id) & parameter_id != ""
+  )
+
+# Identify invalid parameter_id 
+invalid_parameter_id <- final_combined_data %>%
+  filter(!is_valid_parameter_id | !is_valid_length | !is_not_missing)
+
+# Count the number of invalid parameter_id records
+n_invalid <- nrow(invalid_parameter_id)
+cat("Number of invalid parameter_id records: ", n_invalid, "\n")
+
+# The number of invalid parameter_id records:  0 
+```
+
+
+```{r}
+# Check valid parameter_name
+# minValue=2 maxValue=74
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    # Check if parameter_name length is between 2 and 74 characters
+    is_valid_length = nchar(parameter_name) >= 2 & nchar(parameter_name) <= 74,
+    # Check if parameter_name is not missing
+    is_not_missing = !is.na(parameter_name) & parameter_name != ""
+  )
+
+# Identify invalid parameter_name 
+invalid_parameter_name <- final_combined_data %>%
+  filter(!is_valid_length | !is_not_missing)
+
+# Count the number of invalid parameter_name records
+n_invalid <- nrow(invalid_parameter_name)
+cat("Number of invalid parameter_name records: ", n_invalid, "\n")
+
+# The number of invalid parameter_name records:  0 
+```
+
+
+```{r}
+# Check valid pvale
+# Range: [0-1]
+
+final_combined_data <- final_combined_data %>%
+  mutate(
+    # Check if pvalue is numeric
+    is_numeric_pvalue = !is.na(as.numeric(pvalue)),
+    # Check if pvalue is between 0 and 1 (inclusive)
+    is_valid_range = as.numeric(pvalue) >= 0 & as.numeric(pvalue) <= 1,
+    # Check if pvalue is not missing
+    is_not_missing = !is.na(pvalue) & pvalue != ""
+  )
+
+# Identify invalid pvalue 
+invalid_pvalue <- final_combined_data %>%
+  filter(!is_numeric_pvalue | !is_valid_range | !is_not_missing)
+
+# Count the number of invalid pvalue records
+n_invalid <- nrow(invalid_pvalue)
+cat("Number of invalid pvalue records: ", n_invalid, "\n")
+
+# The number of invalid pvalue records:  867
+
+```
+
+
+```{r}
+# Replace invalid pvalue with "invalid"
+final_combined_data <- final_combined_data %>%
+  mutate(
+    pvalue = ifelse(!is_numeric_pvalue | !is_valid_range | !is_not_missing, "invalid", pvalue)
+  )
+```
+
+
+```{r}
+print(final_combined_data)
+print(names(final_combined_data))
+```
+
+
+```{r}
+# List of helper columns to remove
+helper_columns <- c("is_valid_format" ,
+                    "is_valid_length" ,
+                    "is_not_missing"  ,
+                    "is_valid_mouse_strain"  ,
+                    "is_valid_mouse_life_stage",
+                    "is_valid_parameter_id" ,
+                    "is_numeric_pvalue" ,
+                    "is_valid_range"
+                    )
+final_combined_data <- final_combined_data %>%
+  select(-all_of(helper_columns))
+print(names(final_combined_data))
+```
+
+```{r}
+# Identify rows containing "invalid" in any column
+invalid_rows <- final_combined_data %>%
+  filter(if_any(everything(), ~ . == "invalid"))
+
+# Print the rows that contain "invalid"
+print(invalid_rows)
+
+# Count the number of rows to be deleted
+n_invalid <- nrow(invalid_rows)
+cat("Number of rows containing 'invalid': ", n_invalid, "\n")
+
+# Remove rows containing "invalid"
+final_combined_data <- final_combined_data %>%
+  filter(if_all(everything(), ~ . != "invalid"))
+```
+
+```{r}
+# View the cleaned dataset
+head(final_combined_data)
+
+total_rows <- nrow(final_combined_data)
+cat("Total number of valid rows in the dataset: ", total_rows, "\n")
+```
+
+```{r}
+# 保存最终数据为 CSV 文件
+write.csv(final_combined_data, file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/final_combined_cleaned_data.csv", row.names = FALSE)
+
+cat("The final dataset has been saved as 'final_combined_cleaned_data.csv'\n")
+```
+
+
+
+
+
+
+
+
