@@ -1,0 +1,53 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-12-23"
+---
+
+```{r}
+raw_data <- read.csv ("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/IMPC_procedure.txt", header = TRUE, stringsAsFactors = FALSE)
+raw_data
+
+
+```
+
+
+
+
+```{r}
+# Replace spaces with commas to standardize fields
+proc_text_comma <- sub(' ', ',', raw_data$line_number.procedureId..name..description..isMandatory..impcParameterOrigId)
+
+# Split the string by commas, creating a list where each element is a vector of split strings
+proc_text_comma <- strsplit(proc_text_comma, ',')
+
+# Create an empty data frame to store the cleaned data
+clean_data <- data.frame()
+
+# Iterate through the split data and fix rows with more than 5 elements (due to extra splits)
+for (i in proc_text_comma) {
+    if (length(i) > 5) { 
+        # Combine elements from the 3rd to the second last into a single string
+        combined <- do.call(paste, c(as.list(i[3:(length(i) - 2)]), sep = ', '))
+        # Reconstruct the row by combining the relevant parts
+        i <- list(i[[1]], i[[2]], combined, i[[length(i) - 1]], i[[length(i)]])
+    }
+    clean_data <- rbind(clean_data, i)
+}
+
+# Assign column names to the cleaned data frame
+headings <- c( "procedureId", "name", "description", "isMandatory", "impcParameterOrigId")
+colnames(clean_data) <- headings
+
+clean_data
+```
+```{r}
+write.csv(
+  clean_data, 
+  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/IMPC_procedure_cleaned.csv", 
+  row.names = FALSE                         
+)
+
+cat("The final dataset has been saved as 'IMPC_procedure_cleaned.csv'\n")
+```
+
