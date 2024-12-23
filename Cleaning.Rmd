@@ -278,6 +278,10 @@ cat("Number of invalid pvalue records: ", n_invalid, "\n")
 
 ```
 
+```{r}
+dim(final_combined_data)
+# 175347     16
+```
 
 ```{r}
 # Replace invalid pvalue with "invalid"
@@ -333,6 +337,9 @@ head(final_combined_data)
 
 total_rows <- nrow(final_combined_data)
 cat("Total number of valid rows in the dataset: ", total_rows, "\n")
+
+dim(final_combined_data)
+# 172921      8
 ```
 
 ```{r}
@@ -344,7 +351,59 @@ cat("The final dataset has been saved as 'final_combined_cleaned_data.csv'\n")
 
 
 
+```{r}
+# Read the entire file content as a character vector, each line as an element
+file_content <- readLines("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/IMPC_parameter_description.txt")
 
+# Remove the first quoted section and any trailing quotes from each line
+cleaned_content <- gsub('^"[^"]*"\\s+"|"$', "", file_content)
+
+# Split the second line by commas and optional spaces to extract the header
+header <- strsplit(cleaned_content[2], ",\\s*")[[1]]
+data_lines <- cleaned_content[-1]
+
+# Read the data lines into a data frame using the extracted header
+parameter_description <- read.table(
+  text = data_lines,
+  sep = ",",
+  col.names = header,
+  stringsAsFactors = FALSE,
+  quote = "\"",
+  fill = TRUE,
+  strip.white = TRUE
+)
+
+# Remove the first row if it contains duplicate header information
+parameter_description <- parameter_description[-1, ]
+
+# Reset row names to start from 1
+rownames(parameter_description) <- NULL
+
+head(parameter_description)
+
+dim(parameter_description)
+# 5366    4
+```
+
+```{r}
+# Extract valid parameterID values from the parameter_description dataset
+valid_parameter_ids <- parameter_description$parameterId
+
+# Filter final_combined_data to retain only rows with valid parameterIDs
+clean_pId_data <- final_combined_data %>%
+  filter(parameter_id %in% valid_parameter_ids) 
+
+dim(clean_pId_data)
+# 99090 8
+
+```
+
+```{r}
+# 保存最终数据为 CSV 文件
+write.csv(clean_pId_data, file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/final_combined_cleaned_ID_data.csv", row.names = FALSE)
+
+cat("The final dataset has been saved as 'final_combined_cleaned_ID_data.csv'\n")
+```
 
 
 
