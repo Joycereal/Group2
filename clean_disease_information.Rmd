@@ -1,0 +1,119 @@
+---
+title: "Convert files"
+output: html_document
+date: "2024-12-23"
+---
+
+
+```{r}
+# Convert txt file to csv file
+
+# Read the entire file content as a character vector, each line as an element
+file_content <- readLines("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/Disease_information.txt")
+
+#head(file_content) 
+
+# Remove the first quoted section and any trailing quotes from each line
+cleaned_content <- gsub('^"[^"]*"\\s+"|"$', "", file_content)
+
+
+# Split the second line by commas and optional spaces to extract the header
+header <- strsplit(cleaned_content[2], ",\\s*")[[1]]
+#print(header)
+data_lines <- cleaned_content[-1]
+
+data_lines
+
+col_name<-data_lines[1]
+data_lines<-data_lines[-1]
+data_lines
+```
+```{r}
+col_name
+```
+
+
+```{r}
+# Step 1: Replace the first comma with a temporary separator "|"
+data_lines_step1 <- gsub("^([^,]+),", "\\1|", data_lines)
+
+# Step 2: Replace the last comma with a temporary separator "|"
+data_lines_step2 <- gsub(",([^,]+)$", "|\\1", data_lines_step1)
+
+# Step 3: Remove all extra commas in the middle section
+data_lines_step3 <- gsub(",(?!\\s*MGI)", "", data_lines_step2, perl = TRUE)
+
+# Step 4: Ensure a temporary separator "|" is added before "MGI"
+data_lines_step4 <- gsub("\\s*(MGI:)", "|\\1", data_lines_step3)
+
+# Step 5: Remove any trailing commas in the "Description" field
+data_lines_step5 <- gsub("\\|([^|,]+),\\|", "|\\1|", data_lines_step4)
+
+# Step 6: Split the data into four variables using the temporary separator "|"
+data_frame <- read.table(
+  text = data_lines_step5,      # Use the processed data
+  sep = "|",                    # Use "|" as the separator
+  header = FALSE,               # No header row
+  stringsAsFactors = FALSE,     # Do not convert strings to factors
+  col.names = c("disease_id" ,"disease_term","gene_accession_id","phenodigm_score")  # Define column names
+)
+
+# Preview the processed data
+data_frame
+
+```
+
+
+
+```{r}
+write.csv(
+  data_frame, 
+  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/Disease_information_cleaned.csv", 
+  row.names = FALSE                         
+)
+
+cat("The final dataset has been saved as 'Disease_information_cleaned.csv'\n")
+
+```
+
+
+
+```{r}
+# Step 1: Identify duplicate rows with the same "disease_id", "disease_term", and "gene_accession_id"
+# but with different "phenodigm_score" values
+duplicates <- data_frame %>%
+  group_by(disease_id, disease_term, gene_accession_id) %>%
+  summarise(
+    unique_scores = n_distinct(phenodigm_score),  # Count distinct phenodigm_score values
+    .groups = "drop"  # Remove grouping structure after summarise
+  ) %>%
+  filter(unique_scores > 1)  # Keep only rows with more than one unique score
+
+# Print duplicates to check
+print(duplicates)
+
+
+# Step 2: For duplicates, calculate the mean of "phenodigm_score" and combine them into a single row
+disease_information_cleaned <- data_frame %>%
+  group_by(disease_id, disease_term, gene_accession_id) %>%
+  summarise(
+    phenodigm_score = mean(phenodigm_score, na.rm = TRUE),  # Calculate the mean score
+    .groups = "drop"  # Remove grouping structure
+  )
+
+head(disease_information_cleaned)
+dim(disease_information_cleaned)
+# 1181    4
+```
+
+
+```{r}
+write.csv(
+  data_frame, 
+  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/Disease_information_cleaned.csv", 
+  row.names = FALSE                         
+)
+
+cat("The final dataset has been saved as 'Disease_information_cleaned.csv'\n")
+```
+
