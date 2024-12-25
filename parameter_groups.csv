@@ -1,0 +1,170 @@
+parameter_name,group
+Neural tube closure,Development
+Mean corpuscular hemoglobin,Physiological
+Cleft Palate,Development
+Pallor,Physiological
+LVAWd,Cardiovascular
+Fractional Shortening,Cardiovascular
+Embryo Size,Development
+Periphery resting time,Behavioral
+Maxilla/Pre-maxilla,Development
+Bone Mineral Density (excluding skull),Images
+Chloride,Physiological
+Percentage center movement time,Behavioral
+Total bilirubin,Physiological
+Lens Opacity,Physiological
+Latency to center entry,Behavioral
+Cholesterol ratio,Physiological
+Tremor,Behavioral
+Alanine aminotransferase,Physiological
+% Pre-pulse inhibition - PPI2,Sensory
+Area under glucose response curve,Physiological
+Phosphorus,Physiological
+Center distance travelled,Behavioral
+Mean cell volume,Physiological
+Edema,Physiological
+QRS,Cardiovascular/Image
+Urea (Blood Urea Nitrogen - BUN),Physiological
+Retina (combined),Images
+Embryo turning,Development
+Microcephaly,Development
+Aortic diameter (Dao),Cardiovascular
+ST,Cardiovascular/Image
+% Pre-pulse inhibition - PPI3,Sensory
+Percentage center time,Behavioral
+Anophthalmia,Development
+Difference in Conditioning Post-shock and Conditioning Baseline % Freezing,Behavioral
+Retinal Blood Vessels Pattern,Images
+Teeth,Development
+% Pre-pulse inhibition - PPI4,Sensory
+Midbrain,Brain
+Vocalization,Sensory
+Synechia,Physiological
+Whole arena resting time,Behavioral
+Number of caudal vertebrae,Development
+Skin color - back paws,Physiological
+Center average speed,Behavioral
+24kHz-evoked ABR Threshold,Sensory
+Contact righting,Behavioral
+Fusion of processes,Development
+Snout size,Weight
+Coat - color - abdomen,Physiological
+Fat mass,Weight
+Periphery permanence time,Behavioral
+Head size,Weight
+Left kidney weight,Weight
+Heart morphology,Cardiovascular
+Distance travelled - total,Behavioral
+White blood cell count,Physiological
+Alkaline phosphatase,Physiological
+Potassium,Physiological
+Skin color - front paws,Physiological
+Persistence of hyaloid vascular system,Development
+HDL-cholesterol,Development
+Conditioning Baseline % Freezing Time,Behavioral
+Fat/Body weight,Weight
+Albumin,Physiological
+Activity (body position),Behavioral
+Narrow eye opening,Development
+Microphthalmia,Development
+Bone Area,Images
+Forelimb and hindlimb grip strength measurement mean,Development
+Glucose,Physiological
+6kHz-evoked ABR Threshold,Sensory
+Red blood cell distribution width,Physiological
+Left total retinal thickness,Images
+Startle response,Behavioral
+Right total retinal thickness,Images
+Branchial arch morphology,Development
+Fusion between cornea and lens,Development
+Coat - hair distribution - back,Physiological
+Aspartate aminotransferase,Physiological
+LVPWd,Cardiovascular
+Iron,Physiological
+Response amplitude - S,Sensory
+Center resting time,Behavioral
+CV,Cardiovascular
+Head shape,Weight
+RR,Physiological
+LVIDs,Cardiovascular
+Lean mass,Weight
+Forelimbs - shape,Development
+Forelimb grip strength measurement mean,Behavioral
+% Pre-pulse inhibition - Global,Sensory
+Forelimb grip strength normalised against body weight,Weight
+Center permanence time,Behavioral
+LDL-cholesterol,Physiological
+Number of rears - total,Behavioral
+Respiratory Exchange Ratio,Physiological
+Hindbrain,Brain
+Delayed embryonic development,Development
+Tibia length,Weight
+Mean right eye lens density,Images
+End-Systolic Diameter,Cardiovascular
+Number of center entries,Behavioral
+Transitional vertebrae,Development
+Iris/Pupil,Sensory/image
+Lean/Body weight,Weight
+Cue Baseline % Freezing Time,Behavioral
+Skin color - tail,Physiological
+Triglycerides,Physiological
+Total protein,Physiological
+Blood Vessel Morphology,Development
+Placenta Vasculature,Development
+Difference in Cue Tone and Cue Baseline % Freezing,Behavioral
+Locomotor activity,Behavioral
+Mean cell hemoglobin concentration,Physiological
+18kHz-evoked ABR Threshold,Sensory
+LVIDd,Cardiovascular
+HR,Cardiovascular
+Whole arena average speed,Behavioral
+Mean left eye lens density,Images
+Thoracic processes,Development
+Heart weight,Weight
+PR,Cardiovascular
+Magnesium,Physiological
+Mean platelet volume,Physiological
+Pupil Shape,Sensory
+Retinal Blood Vessels,Images
+Head morphology,Development
+CD8 CD44-CD62L+ T cells,Physiological
+Limb grasp,Behavioral
+Bone Mineral Content (excluding skull),Weight
+Red blood cell count,Physiological
+Craniofacial morphology,Development
+Lower teeth appearance,Development
+Gait,Behavioral
+% Pre-pulse inhibition - PPI1,Behavioral
+Eye Hemorrhage or Blood Presence,Images
+Periphery average speed,Behavioral
+Coat - hair distribution - head,Physiological
+Sodium,Physiological
+Hemorrhage,Physiological
+Hemoglobin,Physiological
+Forelimb and hindlimb grip strength normalised against body weight,Weight
+Hindlimbs - shape,Development
+LVAWs,Cardiovascular
+Stroke Volume,Cardiovascular
+Alpha-amylase,Physiological
+Creatinine,Physiological
+Fasted blood glucose concentration,Physiological
+Cardiac Output,Cardiovascular
+HRV,Cardiovascular
+BMC/Body weight,Weight
+Vitelline vasculature morphology,Development
+12kHz-evoked ABR Threshold,Sensory
+Lens,Sensory/image
+Whole liver weight,Weight
+Right kidney weight,Weight
+Hematocrit,Physiological
+Creatine kinase,Physiological
+Neural tube morphology,Development
+Body length,Development
+Placenta Morphology,Development
+Pale yolk sac,Development
+Platelet count,Physiological
+Periphery distance travelled,Behavioral
+End-Diastolic Diameter,Cardiovascular
+Total cholesterol,Physiological
+Calcium,Physiological
+Vitreous,Images
