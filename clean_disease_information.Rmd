@@ -26,8 +26,10 @@ data_lines
 
 col_name<-data_lines[1]
 data_lines<-data_lines[-1]
-data_lines
+head(data_lines)
 ```
+
+
 ```{r}
 col_name
 ```
@@ -59,7 +61,7 @@ data_frame <- read.table(
 )
 
 # Preview the processed data
-data_frame
+head(data_frame)
 
 ```
 
@@ -76,12 +78,17 @@ cat("The final dataset has been saved as 'Disease_information_cleaned.csv'\n")
 
 ```
 
+```{r}
+data_frame2 <- read.csv("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/Disease1225.csv")
+dim(data_frame2)
+# 1242 4
+```
 
 
 ```{r}
 # Step 1: Identify duplicate rows with the same "disease_id", "disease_term", and "gene_accession_id"
 # but with different "phenodigm_score" values
-duplicates <- data_frame %>%
+duplicates <- data_frame2 %>%
   group_by(disease_id, disease_term, gene_accession_id) %>%
   summarise(
     unique_scores = n_distinct(phenodigm_score),  # Count distinct phenodigm_score values
@@ -94,7 +101,7 @@ print(duplicates)
 
 
 # Step 2: For duplicates, calculate the mean of "phenodigm_score" and combine them into a single row
-disease_information_cleaned <- data_frame %>%
+disease_information_cleaned <- data_frame2 %>%
   group_by(disease_id, disease_term, gene_accession_id) %>%
   summarise(
     phenodigm_score = mean(phenodigm_score, na.rm = TRUE),  # Calculate the mean score
@@ -103,13 +110,16 @@ disease_information_cleaned <- data_frame %>%
 
 head(disease_information_cleaned)
 dim(disease_information_cleaned)
-# 1181    4
+# 1186    4
 ```
 
+```{r}
+print(disease_information_cleaned)
+```
 
 ```{r}
 write.csv(
-  data_frame, 
+  disease_information_cleaned, 
   file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/Disease_information_cleaned.csv", 
   row.names = FALSE                         
 )
