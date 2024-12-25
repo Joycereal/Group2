@@ -1,0 +1,71 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-12-25"
+---
+
+
+```{r}
+file_content <- readLines("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/IMPC_parameter_description.txt")
+#file_content
+
+cleaned_content <- gsub('^"[^"]*"\\s+"|"$', "", file_content)
+#cleaned_content
+
+header <- strsplit(cleaned_content[2], ",\\s*")[[1]]
+
+#print(header)
+data_lines <- cleaned_content[-1]
+#data_lines
+
+col_name<-data_lines[1]
+data_lines<-data_lines[-1]
+head(data_lines)
+```
+```{r}
+first_split <- sub(",", "|", data_lines, fixed = TRUE)
+head(first_split)
+
+last_split <- sub("(.*),(.*)", "\\1|\\2", first_split)
+head(last_split)
+
+penultimate_split <- sub("(.*),(.*)\\|(.*)", "\\1|\\2|\\3", last_split)
+head(penultimate_split)
+
+second_variable_fixed <- sub(",", "", penultimate_split, fixed = TRUE)
+head(second_variable_fixed)
+
+data_frame <- read.table(
+  text = second_variable_fixed,      # Use the processed data
+  sep = "|",                    # Use "|" as the separator
+  header = FALSE,               # No header row
+  stringsAsFactors = FALSE,     # Do not convert strings to factors
+  col.names = c("impcParameterOrigId", "name", "description", "parameterId")  # Define column names
+)
+
+# Preview the processed data
+head(data_frame)
+
+colSums(is.na(data_frame))
+
+```
+
+
+```{r}
+print(dim(data_frame))
+# 4523    4
+data_frame
+```
+
+```{r}
+write.csv(
+  data_frame, 
+  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/IMPC_parameter_description_cleaned.csv", 
+  row.names = FALSE                         
+)
+
+cat("The final dataset has been saved as 'IMPC_parameter_description_cleaned.csv'\n")
+```
+
+
+
