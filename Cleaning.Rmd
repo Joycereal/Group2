@@ -383,6 +383,7 @@ head(parameter_description)
 
 dim(parameter_description)
 # 5366    4
+head(parameter_description)
 ```
 
 ```{r}
@@ -404,6 +405,54 @@ write.csv(clean_pId_data, file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Da
 
 cat("The final dataset has been saved as 'final_combined_cleaned_ID_data.csv'\n")
 ```
+
+
+
+```{r}
+clean_pId_data
+```
+
+```{r}
+unique(clean_pId_data$parameter_name)
+```
+
+```{r}
+parameter_groups <- data.frame(
+  parameter_name = unique(clean_pId_data$parameter_name), 
+  group = NA  # 创建一个空的分组列，稍后填充
+)
+
+parameter_groups
+
+write.csv(parameter_groups, "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/parameter_groups.csv", row.names = FALSE)
+```
+
+
+```{r}
+# read the grouping value
+paramter_group_value <- read.csv("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/parameter_groups.csv")
+
+paramter_group_value
+
+```
+
+```{r}
+# Perform a left join to map the 'group' column from 'parameter_groups' 
+# to 'clean_pId_data' based on the 'parameter_name' column
+clean_pId_data <- clean_pId_data %>%
+  left_join(paramter_group_value, by = "parameter_name")
+
+
+head(clean_pId_data)
+```
+
+
+
+
+
+
+
+
 
 
 
