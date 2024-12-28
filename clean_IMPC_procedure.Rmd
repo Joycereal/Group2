@@ -41,6 +41,17 @@ colnames(clean_data) <- headings
 
 clean_data
 ```
+
+
+```{r}
+# Check the duplicates
+print(sum(duplicated(clean_data$impcParameterOrigId)))
+
+```
+
+
+
+
 ```{r}
 write.csv(
   clean_data, 
