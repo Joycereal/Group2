@@ -21,8 +21,14 @@ data_lines <- cleaned_content[-1]
 col_name<-data_lines[1]
 data_lines<-data_lines[-1]
 head(data_lines)
+
+head(data_lines)
 ```
+
+
 ```{r}
+# Convert TXT to CSV
+
 first_split <- sub(",", "|", data_lines, fixed = TRUE)
 head(first_split)
 
@@ -52,20 +58,243 @@ colSums(is.na(data_frame))
 
 
 ```{r}
+# Check the number of rows
 print(dim(data_frame))
-# 4523    4
+# 5325    4
 data_frame
-```
 
-```{r}
+
 write.csv(
   data_frame, 
-  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/IMPC_parameter_description_cleaned.csv", 
+  file = "/Users/joycedeng//Desktop/draft2.csv", 
   row.names = FALSE                         
 )
 
-cat("The final dataset has been saved as 'IMPC_parameter_description_cleaned.csv'\n")
 ```
 
 
+
+```{r}
+# Check the duplicates
+print(sum(duplicated(data_frame$impcParameterOrigId)))
+print(sum(duplicated(data_frame$name)))
+print(sum(duplicated(data_frame$description)))
+print(sum(duplicated(data_frame$parameterId)))
+
+na_count <- sum(is.na(data_frame$description)) 
+cat("Number of NA values in description:", na_count, "\n") # 0
+
+empty_rows_before <- data_frame[nchar(trimws(data_frame$description)) == 0, ]
+empty_count_before <-nrow(empty_rows_before)
+print(empty_count_before)
+# 940
+```
+
+
+
+```{r}
+# Chek the duplicate rows
+# Duplicate impcParameterOrigID :14
+duplicates <- data_frame %>%
+  group_by(impcParameterOrigId,name,description,parameterId) %>%
+  filter(n() > 1)
+
+print(duplicates) #28
+
+# Remove duplicates
+unique_data <- data_frame %>%
+  distinct(impcParameterOrigId, name, description, parameterId, .keep_all = TRUE)
+
+dim(unique_data)
+# 4509 4
+
+# Check
+duplicates2 <- unique_data %>%
+  group_by(impcParameterOrigId,name,description,parameterId) %>%
+  filter(n() > 1)
+
+print(duplicates2)
+
+
+
+```
+
+
+```{r}
+# Check the duplicate again
+print(sum(duplicated(unique_data$impcParameterOrigId)))
+print(sum(duplicated(unique_data$name)))
+print(sum(duplicated(unique_data$description)))
+print(sum(duplicated(unique_data$parameterId)))
+
+# impcParameterOrigId is unique
+```
+
+```{r}
+# Check if name and description columns are one-to-one mapped
+
+# Select the name and description columns and remove duplicates
+
+unique_combinations <- unique_data %>%
+  select(name, description) %>% # Select specific columns
+  distinct()                    # Keep unique rows only
+
+
+if (nrow(unique_combinations) == n_distinct(unique_data$name) && 
+    nrow(unique_combinations) == n_distinct(unique_data$description)) {
+  print("name and description is one-to-one mapped") # Print if they are one-to-one
+  
+} else {
+  print("name and description is not one-to-one mapped") # Print if they are not one-to-one
+  
+}
+```
+
+
+
+```{r}
+# Check if there are duplicate names with different unique descriptions
+
+duplicate_description_groups <- unique_data %>% # Replace `data_frame` with your data frame name
+  filter(!is.na(description)) %>%              # Exclude rows where description is NA
+  group_by(name) %>%                           # Group data by name
+  summarise(
+    distinct_descriptions = n_distinct(description),  # Count distinct descriptions for each name
+    unique_descriptions = paste(unique(description), collapse = ", ") # Combine unique descriptions into a single string
+  ) %>%
+  filter(distinct_descriptions > 1) %>%        # Keep only names with multiple distinct descriptions
+  ungroup()                                    # Remove group structure
+
+# View the result
+print(duplicate_description_groups)
+# 180
+```
+
+
+
+```{r}
+# Remove duplicate names
+
+cleaned_data <- unique_data %>%   # Replace `data_frame` with your actual data frame name
+  group_by(name) %>%            # Group by name to process duplicates
+  filter(!is.na(description)) %>% # Remove rows where description is NA
+  arrange(description, .by_group = TRUE) %>% # Sort rows by description alphabetically within each name group
+  slice(1) %>%                  # Keep only the first occurrence of each group
+  ungroup()                     # Remove grouping to restore data frame to normal
+
+# View the cleaned data
+print(cleaned_data)
+```
+
+```{r}
+# Clean up the name
+print(sum(duplicated(cleaned_data$name)))
+print(sum(duplicated(cleaned_data$description)))
+print(sum(duplicated(cleaned_data$parameterId)))
+```
+```{r}
+# Check the duplicate parameterId
+duplicate_ids <- cleaned_data %>%
+  filter(duplicated(parameterId) | duplicated(parameterId, fromLast = TRUE))
+
+# View rows with duplicate parameterId
+print(duplicate_ids)
+
+# Count the occurrences of each duplicate parameterId
+
+duplicate_counts <- cleaned_data %>%
+  group_by(parameterId) %>%
+  filter(n() > 1) %>%
+  summarise(count = n())
+
+# View the counts
+
+print(duplicate_counts)
+
+# Find that: duplacate parameterId have same name and description, but different impcParameterOrigId
+# it is not so important
+# remove them
+
+```
+
+```{r}
+cleaned_data_unique <- cleaned_data %>%
+  distinct(parameterId, .keep_all = TRUE)
+
+dim(cleaned_data_unique)
+# 2532 4
+```
+
+```{r}
+# Check
+print(sum(duplicated(cleaned_data_unique$name)))
+print(sum(duplicated(cleaned_data_unique$description)))
+print(sum(duplicated(cleaned_data_unique$parameterId)))
+```
+
+
+```{r}
+# Count the number of NA values in the description column
+na_count <- sum(is.na(cleaned_data_unique$description)) 
+cat("Number of NA values in description:", na_count, "\n")
+```
+
+
+```{r}
+# Identify rows with empty or whitespace-only strings in the description column
+str(cleaned_data_unique$description)
+
+# Filter rows where the trimmed description has a character length of 0
+empty_rows <- cleaned_data_unique[nchar(trimws(cleaned_data_unique$description)) == 0, ]
+
+print(empty_rows)
+
+empty_count <-nrow(empty_rows) # 953
+print(empty_count)
+
+# keep the empty
+```
+
+```{r}
+# Check the duplicate again
+print(sum(duplicated(cleaned_data_unique$impcParameterOrigId)))
+print(sum(duplicated(cleaned_data_unique$name)))
+print(sum(duplicated(cleaned_data_unique$description)))
+print(sum(duplicated(cleaned_data_unique$parameterId)))
+```
+
+
+
+```{r}
+head(clean_pId_data)
+
+clean_pId_data1 <- clean_pId_data %>%
+  mutate(parameter_id = trimws(parameter_id))
+
+cleaned_data_unique1 <- cleaned_data_unique %>%
+  mutate(parameterId = trimws(parameterId))
+
+# 提取不匹配的 parameter_id
+invalid_ids <- cleaned_data_unique1 %>%
+  filter(!parameterId %in% clean_pId_data1$parameter_id)
+
+# 查看不匹配的 parameter_id
+if (nrow(invalid_ids) > 0) {
+  print("The following parameter_id values in analysis_table do not exist in parameter_table:")
+  print(invalid_ids)
+} else {
+  print("All parameter_id values in analysis_table are consistent with parameter_table.")
+}
+```
+
+
+```{r}
+write.csv(
+  cleaned_data_unique1, 
+  file = "/Users/joycedeng//Desktop/IMPC_parameter_description_cleaned1228.csv", 
+  row.names = FALSE                         
+)
+
+cat("The final dataset has been saved as 'IMPC_parameter_description_cleaned1228.csv'\n")
+```
 
