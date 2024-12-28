@@ -63,26 +63,26 @@ data_frame <- read.table(
 # Preview the processed data
 head(data_frame)
 
+
+
 ```
 
 
 
 ```{r}
-write.csv(
-  data_frame, 
-  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/Disease_information_cleaned.csv", 
-  row.names = FALSE                         
-)
-
-cat("The final dataset has been saved as 'Disease_information_cleaned.csv'\n")
-
-```
-
-```{r}
-data_frame2 <- read.csv("/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/Disease1225.csv")
+data_frame2 <- read.csv("/Users/joycedeng/Desktop/Disease1225.csv")
 dim(data_frame2)
 # 1242 4
 ```
+
+```{r}
+duplicates <- data_frame2 %>%
+  group_by(disease_id, disease_term, gene_accession_id) %>%
+  filter(n() > 1)
+
+print(duplicates)
+```
+
 
 
 ```{r}
@@ -114,16 +114,35 @@ dim(disease_information_cleaned)
 ```
 
 ```{r}
-print(disease_information_cleaned)
+duplicates <- disease_information_cleaned %>%
+  group_by(disease_id) %>%
+  filter(n() > 1)
+
+print(duplicates)
+
+# 152 duplicated disease_id
+# 1186 duplicated gene_accession_id
+
+# They cant be the primary key
+
+
 ```
+
+```{r}
+colnames(disease_information_cleaned)
+```
+
+
 
 ```{r}
 write.csv(
   disease_information_cleaned, 
-  file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/Group2/new_file/Disease_information_cleaned.csv", 
+  file = "/Users/joycedeng/Desktop/Disease_information_cleaned1025.csv", 
   row.names = FALSE                         
 )
 
 cat("The final dataset has been saved as 'Disease_information_cleaned.csv'\n")
 ```
+
+
 
