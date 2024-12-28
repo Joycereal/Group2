@@ -447,12 +447,77 @@ head(clean_pId_data)
 ```
 
 
+```{r}
+# 保存最终数据为 CSV 文件
+write.csv(clean_pId_data, file = "/Users/joycedeng/Desktop/KCL_Bioinformatics/Data Cleaning and Data Management/project/final_combined_cleaned_ID_data2.csv", row.names = FALSE)
+
+cat("The final dataset has been saved as 'final_combined_cleaned_ID_data2.csv'\n")
+```
 
 
 
 
 
+```{r}
+duplicates <- clean_pId_data %>%
+  group_by(gene_accession_id) %>%
+  filter(n() > 1)
 
+print(duplicates)
+```
+
+
+
+```{r}
+# Check if name and description columns are one-to-one mapped
+is_unique <- clean_pId_data %>%
+  group_by(parameter_id) %>%
+  summarise(unique_names = n_distinct(parameter_name)) %>%
+  filter(unique_names > 1)
+
+# 如果 `is_unique` 为空，则说明两者是一一对应的关系
+if (nrow(is_unique) == 0) {
+  print("parameter_id and parameter_name columns are one-to-one mapped")
+} else {
+  print("parameter_id and parameter_name columns are not one-to-one mapped")
+  print(is_unique)
+}
+```
+```{r}
+# Check if name and description columns are one-to-one mapped
+is_unique <- clean_pId_data %>%
+  group_by(parameter_name) %>%
+  summarise(unique_names = n_distinct(group)) %>%
+  filter(unique_names > 1)
+
+# 如果 `is_unique` 为空，则说明两者是一一对应的关系
+if (nrow(is_unique) == 0) {
+  print("parameter_name and group columns are one-to-one mapped")
+} else {
+  print("parameter_name and group columns are not one-to-one mapped")
+  print(is_unique)
+}
+```
+
+
+
+
+```{r}
+# Check if name and description columns are one-to-one mapped
+is_unique <- clean_pId_data %>%
+  group_by(parameter_id) %>%
+  summarise(unique_names = n_distinct(group)) %>%
+  filter(unique_names > 1)
+
+# 如果 `is_unique` 为空，则说明两者是一一对应的关系
+if (nrow(is_unique) == 0) {
+  print("parameter_id and group columns are one-to-one mapped")
+} else {
+  print("parameter_id and group columns are not one-to-one mapped")
+  print(is_unique)
+}
+
+```
 
 
 
